@@ -58,6 +58,18 @@ $pendingOrdersCount = (new Order())->getStats()['pending_orders'];
                class="<?= basename($_SERVER['PHP_SELF']) == 'categories.php' ? 'active' : '' ?>">
                 <i class="fas fa-th-large"></i> Kategoriyalar
             </a>
+            <a href="<?= SITE_URL ?>/admin/users.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : '' ?>">
+                <i class="fas fa-users"></i> Foydalanuvchilar
+            </a>
+            <a href="<?= SITE_URL ?>/admin/reviews.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'reviews.php' ? 'active' : '' ?>">
+                <i class="fas fa-star"></i> Sharhlar
+            </a>
+            <a href="<?= SITE_URL ?>/admin/settings.php" 
+               class="<?= basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '' ?>">
+                <i class="fas fa-cog"></i> Sozlamalar
+            </a>
             <a href="<?= SITE_URL ?>/admin/orders.php" 
                class="<?= basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'active' : '' ?>">
                 <i class="fas fa-truck"></i> Buyurtmalar

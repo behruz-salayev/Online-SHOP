@@ -190,7 +190,7 @@ class User
     public function getById(int $id): ?array
     {
         return $this->db->fetchOne(
-            "SELECT id, full_name, email, phone, role, created_at FROM users WHERE id = ?",
+            "SELECT id, full_name, email, phone, role, status, created_at FROM users WHERE id = ?",
             [$id], 'i'
         );
     }
@@ -257,8 +257,24 @@ class User
     public function getAll(): array
     {
         return $this->db->fetchAll(
-            "SELECT id, full_name, email, phone, role, created_at 
+            "SELECT id, full_name, email, phone, role, created_at, status
              FROM users ORDER BY created_at DESC"
+        );
+    }
+
+    public function updateRole(int $id, string $role): void
+    {
+        $this->db->query(
+            "UPDATE users SET role = ? WHERE id = ?",
+            [$role, $id], 'si'
+        );
+    }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        $this->db->query(
+            "UPDATE users SET status = ? WHERE id = ?",
+            [$status, $id], 'si'
         );
     }
 }

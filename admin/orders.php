@@ -30,8 +30,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     redirect('admin/orders.php');
 }
 
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    $exportStatus = $_GET['status'] ?? 'all';
+    $exportOrders = $orderModel->getAll($exportStatus);
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="buyurtmalar.csv"');
+
+    $output = fopen('php://output', 'w');
+    fprintf($output, "\xEF\xBB\xBF");
+    fputcsv($output, ['ID', 'Mijoz', 'Telefon', 'Manzil', 'Summa', "To'lov", 'Holat', 'Sana']);
+
+    foreach ($exportOrders as $o) {
+        fputcsv($output, [
+            $o['id'],
+            $o['full_name'],
+            $o['phone'] ?? $o['user_phone'] ?? '',
+            $o['region_name'] . ', ' . $o['district_name'] . ', ' . $o['address'],
+            $o['total_price'],
+            $o['payment_method'],
+            $o['status'],
+            $o['created_at'],
+        ]);
+    }
+    fclose($output);
+    exit;
+}
+
 $currentStatus = $_GET['status'] ?? 'all';
+$search = trim($_GET['search'] ?? '');
+
 $orders = $orderModel->getAll($currentStatus);
+
+if (!empty($search)) {
+    $orders = array_filter($orders, fn($o) =>
+        stripos((string)$o['id'], $search) !== false ||
+        stripos($o['full_name'], $search) !== false ||
+        stripos($o['phone'] ?? $o['user_phone'] ?? '', $search) !== false
+    );
+}
 
 $title = 'Buyurtmalar';
 require_once __DIR__ . '/../includes/admin_header.php';
@@ -39,6 +76,24 @@ require_once __DIR__ . '/../includes/admin_header.php';
 
 <div class="admin-header">
     <h1><i class="fas fa-truck"></i> Buyurtmalar</h1>
+    <a href="?export=csv&status=<?= $currentStatus ?>" class="btn btn-outline"><i class="fas fa-download"></i> CSV export</a>
+</div>
+
+<div class="admin-card" style="margin-bottom:16px;">
+    <form method="GET">
+        <div class="form-row" style="align-items:end;">
+            <input type="hidden" name="status" value="<?= $currentStatus ?>">
+            <div class="form-group" style="flex:1;">
+                <input type="text" name="search" class="form-control" placeholder="Buyurtma ID, mijoz nomi yoki telefon bo'yicha qidirish..." value="<?= htmlspecialchars($search) ?>">
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;gap:6px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Qidirish</button>
+                <?php if ($search): ?>
+                    <a href="?status=<?= $currentStatus ?>" class="btn btn-outline"><i class="fas fa-times"></i></a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Status filtr tugmalari -->

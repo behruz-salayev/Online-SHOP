@@ -348,4 +348,28 @@ class Order
             'total_products'  => (int)($products['count'] ?? 0),
         ];
     }
+
+    public function getMonthlyRevenue(): array
+    {
+        return $this->db->fetchAll(
+            "SELECT MONTH(created_at) as month, 
+                    COALESCE(SUM(total_price), 0) as total
+             FROM orders 
+             WHERE status NOT IN ('cancelled') 
+               AND YEAR(created_at) = YEAR(NOW())
+             GROUP BY MONTH(created_at)
+             ORDER BY month ASC"
+        );
+    }
+
+    public function getDailyOrderStats(): array
+    {
+        return $this->db->fetchAll(
+            "SELECT DATE(created_at) as date, COUNT(*) as count
+             FROM orders 
+             WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+             GROUP BY DATE(created_at)
+             ORDER BY date ASC"
+        );
+    }
 }

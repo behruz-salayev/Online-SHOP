@@ -535,6 +535,170 @@ h3 { font-size: 18px; }
 .product-meta { display: flex; flex-direction: column; gap: 6px; }
 .product-meta p { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
 
+.seller-store-card {
+    display: block;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.seller-store-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.seller-store-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.seller-store-info img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+.seller-store-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--primary-light, #e8f0fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+.seller-store-info strong {
+    display: block;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+.seller-store-info span {
+    font-size: 12px;
+    color: var(--primary);
+}
+.seller-store-info span i {
+    font-size: 10px;
+}
+
+/* ============================================================
+   REVIEWS - Sharhlar
+   ============================================================ */
+.reviews-section {
+    margin-top: 32px;
+}
+.reviews-summary {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+.reviews-avg {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.avg-rating {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+}
+.avg-stars i {
+    font-size: 18px;
+    margin-right: 2px;
+}
+.avg-count {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.review-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.review-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.review-stars {
+    display: flex;
+    gap: 1px;
+    margin-top: 2px;
+}
+.review-comment {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+.review-form {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+}
+.review-form h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+.rating-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.star-input {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 2px;
+}
+.star-input input {
+    display: none;
+}
+.star-input label {
+    cursor: pointer;
+    font-size: 22px;
+    color: var(--border);
+    transition: color 0.15s;
+}
+.star-input label:hover,
+.star-input label:hover ~ label,
+.star-input input:checked ~ label {
+    color: var(--warning);
+}
+
 /* ============================================================
    CART - Savat sahifasi
    ============================================================ */
@@ -1221,28 +1385,64 @@ select.form-control { cursor: pointer; }
 
 /* Store sahifasi */
 .store-header {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 18px;
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 24px;
-    border: 1px solid var(--border);
+    background: linear-gradient(135deg, #1a73e8 0%, #7c3aed 100%);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    margin-bottom: 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+.store-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='28' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") repeat;
+    opacity: 0.3;
 }
 .store-info {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     align-items: flex-start;
+    position: relative;
+    z-index: 1;
 }
 .store-logo {
     width: 100px;
     height: 100px;
     object-fit: cover;
-    border-radius: 12px;
-    border: 2px solid var(--border);
+    border-radius: 16px;
+    border: 3px solid rgba(255,255,255,0.3);
     flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
 }
-.store-info h1 { font-size: 22px; margin-bottom: 8px; }
-.store-info p { font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+.store-info h1 {
+    font-size: 26px;
+    margin: 0 0 6px;
+    font-weight: 700;
+}
+.store-info .store-desc {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+.store-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.store-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    opacity: 0.85;
+}
+.store-meta-item i {
+    width: 16px;
+    text-align: center;
+}
 
 /* Seller form */
 .form-card {

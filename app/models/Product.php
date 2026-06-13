@@ -129,10 +129,12 @@ class Product
 
         return $this->db->fetchOne(
             "SELECT p.*, c.name as category_name, c.slug as category_slug,
-                    s.full_name as seller_name, s.email as seller_email, s.id as seller_id
+                    s.full_name as seller_name, s.email as seller_email, s.id as seller_id,
+                    sel.business_name as seller_store_name, sel.logo as seller_logo, sel.id as seller_profile_id
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.id
              LEFT JOIN users s ON p.seller_id = s.id
+             LEFT JOIN sellers sel ON s.id = sel.user_id
              WHERE {$where}",
             $params, $types
         );

@@ -51,22 +51,32 @@ require_once __DIR__ . '/../includes/admin_header.php';
     <h1><i class="fas fa-th-large"></i> Kategoriyalar</h1>
 </div>
 
-<!-- Yangi kategoriya qo'shish -->
+<?php $editCat = null; if (isset($_GET['edit'])) $editCat = $categoryModel->getById((int)$_GET['edit']); ?>
+
+<!-- Kategoriya yaratish/tahrirlash -->
 <div class="admin-card">
-    <h2><i class="fas fa-plus-circle"></i> Yangi kategoriya</h2>
+    <h2><i class="fas <?= $editCat ? 'fa-edit' : 'fa-plus-circle' ?>"></i> <?= $editCat ? 'Kategoriyani tahrirlash' : 'Yangi kategoriya' ?></h2>
     <form method="POST">
         <?= csrf_field() ?>
+        <?php if ($editCat): ?>
+            <input type="hidden" name="edit_id" value="<?= $editCat['id'] ?>">
+        <?php endif; ?>
         <div class="form-row">
             <div class="form-group">
                 <label>Kategoriya nomi</label>
-                <input type="text" name="name" required class="form-control" placeholder="Kategoriya nomi">
+                <input type="text" name="name" required class="form-control" placeholder="Kategoriya nomi" value="<?= htmlspecialchars($editCat['name'] ?? '') ?>">
             </div>
             <div class="form-group">
                 <label>Tavsif</label>
-                <input type="text" name="description" class="form-control" placeholder="Qisqacha tavsif">
+                <input type="text" name="description" class="form-control" placeholder="Qisqacha tavsif" value="<?= htmlspecialchars($editCat['description'] ?? '') ?>">
             </div>
-            <div class="form-group" style="display:flex;align-items:flex-end;">
-                <button type="submit" name="save_category" class="btn btn-primary">Qo'shish</button>
+            <div class="form-group" style="display:flex;align-items:flex-end;gap:6px;">
+                <button type="submit" name="save_category" class="btn btn-primary">
+                    <i class="fas fa-save"></i> <?= $editCat ? 'Yangilash' : 'Qo\'shish' ?>
+                </button>
+                <?php if ($editCat): ?>
+                    <a href="categories.php" class="btn btn-outline"><i class="fas fa-times"></i> Bekor qilish</a>
+                <?php endif; ?>
             </div>
         </div>
     </form>
@@ -95,7 +105,8 @@ require_once __DIR__ . '/../includes/admin_header.php';
                         <td><?= htmlspecialchars($cat['slug'] ?? '') ?></td>
                         <td><?= htmlspecialchars($cat['description'] ?? '') ?></td>
                         <td><?= $cat['product_count'] ?></td>
-                        <td>
+                        <td style="white-space:nowrap">
+                            <a href="?edit=<?= $cat['id'] ?>" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
                             <form method="POST" style="display:inline" onsubmit="return confirm('O\'chirilsinmi?')">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="category_id" value="<?= $cat['id'] ?>">

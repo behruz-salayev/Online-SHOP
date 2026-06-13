@@ -34,6 +34,32 @@ $isInWishlist = $wishlist->isInWishlist($id);
 $specs = json_decode($product['specs'] ?? '[]', true) ?: [];
 $images = json_decode($product['images'] ?? '[]', true) ?: [];
 
+$reviewModel = new Review();
+$reviews = $reviewModel->getByProduct($id);
+$avgRating = $reviewModel->getAverage($id);
+$reviewCount = $reviewModel->getCount($id);
+$userReviewed = User::isLoggedIn() ? $reviewModel->hasUserReviewed($id, $_SESSION['user_id']) : false;
+
+// Sharh yuborish
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
+    ensure_csrf();
+    if (!User::isLoggedIn()) {
+        flash('error', 'Sharh qoldirish uchun tizimga kiring.');
+        redirect('users/login.php');
+    }
+    $rating = (int)($_POST['rating'] ?? 0);
+    $comment = trim($_POST['comment'] ?? '');
+    if ($rating < 1 || $rating > 5) {
+        flash('error', 'Reyting 1-5 oralig\'ida bo\'lishi kerak.');
+    } elseif ($userReviewed) {
+        flash('error', 'Siz allaqachon sharh qoldirgansiz.');
+    } else {
+        $reviewModel->create($id, $_SESSION['user_id'], $rating, $comment);
+        flash('success', 'Sharhingiz administrator tomonidan tekshirilgandan so\'ng e\'lon qilinadi.');
+        redirect('product.php?id=' . $id);
+    }
+}
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -141,16 +167,26 @@ require_once __DIR__ . '/includes/header.php';
             </button>
         </div>
 
+        <!-- Sotuvchi do'koni -->
+        <?php if (!empty($product['seller_id'])): ?>
+            <a href="<?= SITE_URL ?>/store.php?id=<?= $product['seller_profile_id'] ?? $product['seller_id'] ?>" class="seller-store-card">
+                <div class="seller-store-info">
+                    <?php if (!empty($product['seller_logo'])): ?>
+                        <img src="<?= SITE_URL ?>/links/images/<?= htmlspecialchars($product['seller_logo']) ?>" 
+                             alt="<?= htmlspecialchars($product['seller_store_name'] ?? $product['seller_name']) ?>">
+                    <?php else: ?>
+                        <div class="seller-store-icon"><i class="fas fa-store"></i></div>
+                    <?php endif; ?>
+                    <div>
+                        <strong><?= htmlspecialchars($product['seller_store_name'] ?? $product['seller_name'] ?? 'Do\'kon') ?></strong>
+                        <span><i class="fas fa-chevron-right"></i> Do'konga o'tish</span>
+                    </div>
+                </div>
+            </a>
+        <?php endif; ?>
+
         <!-- Qo'shimcha ma'lumot -->
         <div class="product-meta">
-            <?php if (!empty($product['seller_id'])): ?>
-                <p>
-                    <i class="fas fa-store"></i> Sotuvchi: 
-                    <a href="<?= SITE_URL ?>/store.php?id=<?= $product['seller_id'] ?>">
-                        <?= htmlspecialchars($product['seller_name'] ?? 'Do\'kon') ?>
-                    </a>
-                </p>
-            <?php endif; ?>
             <p><i class="fas fa-truck"></i> Yetkazib berish: 1-3 ish kuni</p>
             <p><i class="fas fa-undo"></i> 30 kun ichida qaytarish</p>
             <p><i class="fas fa-shield-alt"></i> Sifat kafolati</p>
@@ -187,6 +223,83 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </section>
 <?php endif; ?>
+
+<!-- Sharhlar -->
+<section class="section reviews-section">
+    <div class="section-header">
+        <h2><i class="fas fa-star"></i> Sharhlar (<?= $reviewCount ?>)</h2>
+    </div>
+
+    <?php if ($avgRating > 0): ?>
+        <div class="reviews-summary">
+            <div class="reviews-avg">
+                <span class="avg-rating"><?= $avgRating ?></span>
+                <div class="avg-stars">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <i class="fas fa-star" style="color:<?= $i <= round($avgRating) ? 'var(--warning)' : 'var(--border)' ?>"></i>
+                    <?php endfor; ?>
+                </div>
+                <span class="avg-count"><?= $reviewCount ?> ta sharh</span>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <div class="reviews-list">
+        <?php foreach ($reviews as $r): ?>
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="review-avatar"><?= strtoupper(mb_substr($r['user_name'], 0, 1)) ?></div>
+                    <div>
+                        <strong><?= htmlspecialchars($r['user_name']) ?></strong>
+                        <div class="review-stars">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <i class="fas fa-star" style="color:<?= $i <= $r['rating'] ? 'var(--warning)' : 'var(--border)' ?>;font-size:12px;"></i>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                    <small style="margin-left:auto;color:var(--text-muted);"><?= date('d.m.Y', strtotime($r['created_at'])) ?></small>
+                </div>
+                <?php if ($r['comment']): ?>
+                    <p class="review-comment"><?= nl2br(htmlspecialchars($r['comment'])) ?></p>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+        <?php if (empty($reviews)): ?>
+            <div class="empty-state" style="padding:30px;">
+                <i class="fas fa-comment"></i>
+                <h3>Hali sharhlar yo'q</h3>
+                <p>Ushbu mahsulot haqida birinchi bo'lib fikr bildiring!</p>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Sharh qoldirish formasi -->
+    <div class="review-form">
+        <h3><i class="fas fa-pen"></i> Sharh qoldirish</h3>
+        <?php if (!User::isLoggedIn()): ?>
+            <p><a href="<?= SITE_URL ?>/users/login.php">Tizimga kiring</a> sharh qoldirish uchun.</p>
+        <?php elseif ($userReviewed): ?>
+            <p style="color:var(--text-muted);"><i class="fas fa-check-circle" style="color:var(--success);"></i> Siz bu mahsulotga sharh qoldirgansiz.</p>
+        <?php else: ?>
+            <form method="POST">
+                <?= csrf_field() ?>
+                <div class="rating-select">
+                    <span>Reyting:</span>
+                    <div class="star-input">
+                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                            <input type="radio" name="rating" value="<?= $i ?>" id="star<?= $i ?>" <?= $i == 5 ? 'checked' : '' ?>>
+                            <label for="star<?= $i ?>"><i class="fas fa-star"></i></label>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+                <textarea name="comment" class="form-control" placeholder="Fikringizni yozing..." rows="3" style="margin-top:10px;"></textarea>
+                <button type="submit" name="submit_review" class="btn btn-primary" style="margin-top:10px;">
+                    <i class="fas fa-paper-plane"></i> Yuborish
+                </button>
+            </form>
+        <?php endif; ?>
+    </div>
+</section>
 
 <!-- JavaScript -->
 <script>

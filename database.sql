@@ -13,6 +13,7 @@ CREATE TABLE users (
     phone VARCHAR(20) NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('user','seller','admin') DEFAULT 'user',
+    status ENUM('active','banned') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -209,5 +210,36 @@ INSERT INTO sellers (user_id, business_name, business_description, phone, region
 
 INSERT INTO products (category_id, seller_id, name, slug, description, price, old_price, stock, image, specs, is_featured, approval_status) VALUES
 (1, 2, 'iPhone 15 Pro Max 256GB', 'iphone-15-pro-max-256', 'Apple\'ning eng so\'nggi flagmani. A17 Pro chip, titan korpus, 48MP pro kamera tizimi. Akkumulyator 29 soatgacha video ko\'rish.', 14999000, 16999000, 15, 'placeholder.svg', '{"Rangi":"Natural Titanium","RAM":"8 GB","Xotira":"256 GB","Ekran":"6.7\" Super Retina XDR","Protsessor":"A17 Pro","Kamera":"48+12+12 MP","Old kamera":"12 MP","Batareya":"4422 mAh","OS":"iOS 17"}', 1, 'approved');
+
+-- ========== SETTINGS ==========
+CREATE TABLE settings (
+    `key` VARCHAR(100) PRIMARY KEY,
+    `value` TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO settings (`key`, `value`) VALUES
+('site_name', 'PhoneStore'),
+('site_description', 'Eng so\'nggi telefonlar, eng yaxshi narxlarda'),
+('contact_email', 'info@phonestore.uz'),
+('contact_phone', '+998901234567'),
+('currency', 'so\'m'),
+('delivery_fee', '15000'),
+('free_delivery_min', '500000'),
+('maintenance_mode', '0');
+
+-- ========== REVIEWS ==========
+CREATE TABLE reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    status ENUM('pending','approved','rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_review (product_id, user_id)
+) ENGINE=InnoDB;
 
 
