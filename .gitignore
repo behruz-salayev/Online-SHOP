@@ -1,0 +1,21 @@
+# Uploaded files and images
+links/images/*
+!links/images/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PHP
+.php_cs.cache
+
+# Environment files
+.env
+.env.local
