@@ -154,7 +154,7 @@ require_once __DIR__ . '/includes/header.php';
                 <button onclick="changeQty(1)">+</button>
             </div>
 
-            <?php if (!User::isAdmin()): ?>
+            <?php if (!User::isAdmin() && !(User::isLoggedIn() && User::isSeller() && (int)$product['seller_id'] === (int)$_SESSION['user_id'])): ?>
             <button class="btn btn-primary btn-lg" onclick="addToCart(<?= $product['id'] ?>)"
                     <?= $product['stock'] < 1 ? 'disabled' : '' ?>>
                 <i class="fas fa-shopping-cart"></i> Savatga
@@ -212,7 +212,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="product-price">
                         <span class="current-price"><?= formatPrice($rp['price']) ?></span>
                     </div>
-                    <?php if (!User::isAdmin()): ?>
+                    <?php if (!User::isAdmin() && !(User::isLoggedIn() && User::isSeller() && (int)$rp['seller_id'] === (int)$_SESSION['user_id'])): ?>
                         <button class="btn btn-primary btn-block" onclick="event.stopPropagation(); addToCart(<?= $rp['id'] ?>)">
                             Savatga
                         </button>

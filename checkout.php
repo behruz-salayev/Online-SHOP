@@ -32,6 +32,16 @@ if (empty($items)) {
     redirect('cart.php');
 }
 
+// Sotuvchi o'z mahsulotiga buyurtma bera olmaydi
+if (User::isSeller()) {
+    foreach ($items as $item) {
+        if ((int)$item['seller_id'] === (int)$_SESSION['user_id']) {
+            flash('error', 'Siz o\'z mahsulotingizni sotib ololmaysiz. Iltimos, savatdan o\'z mahsulotingizni olib tashlang.');
+            redirect('cart.php');
+        }
+    }
+}
+
 // Foydalanuvchi va viloyat ma'lumotlari
 $userModel = new User();
 $user = $userModel->getById($_SESSION['user_id']);

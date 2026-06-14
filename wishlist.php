@@ -52,7 +52,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="product-price">
                         <span class="current-price"><?= formatPrice($item['price']) ?></span>
                     </div>
-                    <?php if (!User::isAdmin()): ?>
+                    <?php if (!User::isAdmin() && !(User::isSeller() && (int)$item['seller_id'] === (int)$_SESSION['user_id'])): ?>
                         <button class="btn btn-primary btn-block" onclick="event.stopPropagation(); addToCart(<?= $item['id'] ?>)">
                             <i class="fas fa-shopping-cart"></i> Savatga
                         </button>

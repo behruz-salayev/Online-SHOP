@@ -23,6 +23,15 @@ $action = $_POST['action'] ?? '';
 $productId = (int)($_POST['product_id'] ?? 0);
 $quantity = (int)($_POST['quantity'] ?? 1);
 
+// Sotuvchi o'z mahsulotini savatga qo'sha olmaydi
+if ($action === 'add' && User::isLoggedIn() && User::isSeller() && $productId > 0) {
+    $product = (new Product())->getById($productId);
+    if ($product && (int)$product['seller_id'] === (int)$_SESSION['user_id']) {
+        jsonResponse(['success' => false, 'error' => 'Siz o\'z mahsulotingizni sotib ololmaysiz'], 403);
+        exit;
+    }
+}
+
 $cart = new Cart();
 
 switch ($action) {

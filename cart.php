@@ -26,6 +26,19 @@ require_once __DIR__ . '/includes/header.php';
 
 <h1 class="page-title"><i class="fas fa-shopping-cart"></i> Savat</h1>
 
+<?php
+// Sotuvchining o'z mahsulotlari savatda borligini tekshirish
+$hasOwnProduct = false;
+if (User::isLoggedIn() && User::isSeller()) {
+    foreach ($items as $item) {
+        if ((int)$item['seller_id'] === (int)$_SESSION['user_id']) {
+            $hasOwnProduct = true;
+            break;
+        }
+    }
+}
+?>
+
 <?php if (empty($items)): ?>
     <!-- Savat bo'sh -->
     <div class="empty-state">
@@ -36,6 +49,12 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 <?php else: ?>
     <!-- Savat mazmuni -->
+    <?php if ($hasOwnProduct): ?>
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> 
+            Siz o'z mahsulotingizni sotib ololmaysiz. Iltimos, o'z mahsulotingizni savatdan olib tashlang.
+        </div>
+    <?php endif; ?>
     <div class="cart-layout">
         <div class="cart-items">
             <?php foreach ($items as $item): ?>
@@ -87,9 +106,11 @@ require_once __DIR__ . '/includes/header.php';
                 <span>Jami:</span>
                 <span id="cart-total"><?= formatPrice($total) ?></span>
             </div>
+            <?php if (!$hasOwnProduct): ?>
             <a href="<?= SITE_URL ?>/checkout.php" class="btn btn-primary btn-block btn-lg">
                 <i class="fas fa-credit-card"></i> Buyurtma berish
             </a>
+            <?php endif; ?>
             <a href="<?= SITE_URL ?>/index.php" class="btn btn-outline btn-block">
                 Xaridni davom ettirish
             </a>

@@ -160,7 +160,7 @@ require_once __DIR__ . '/../includes/seller_header.php';
             <label>Xususiyatlar (ixtiyoriy)</label>
             <div id="specsContainer">
                 <?php
-                $existingSpecs = $editProduct ? json_decode($editProduct['specs'], true) : [];
+                $existingSpecs = $editProduct && !empty($editProduct['specs']) ? json_decode($editProduct['specs'], true) : [];
                 if (!empty($existingSpecs) && is_array($existingSpecs)):
                     foreach ($existingSpecs as $key => $value):
                 ?>

@@ -17,6 +17,17 @@ if (User::isAdmin()) {
     redirect('index.php');
 }
 
+// Sotuvchi o'z mahsulotiga buyurtma bera olmaydi
+if (User::isSeller()) {
+    $cart = new Cart();
+    foreach ($cart->getItems() as $item) {
+        if ((int)$item['seller_id'] === (int)$_SESSION['user_id']) {
+            $_SESSION['error'] = 'Siz o\'z mahsulotingizni sotib ololmaysiz.';
+            redirect('cart.php');
+        }
+    }
+}
+
 // Faqat POST so'rov
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect('checkout.php');

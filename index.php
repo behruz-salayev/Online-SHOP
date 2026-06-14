@@ -18,7 +18,7 @@ $productModel = new Product();
 $categoryModel = new Category();
 
 // Filtrlash parametrlarini olish
-$categoryId = $_GET['category_id'] ?? null;  // Kategoriya ID
+$categoryId = !empty($_GET['category_id']) ? (int)$_GET['category_id'] : null;  // Kategoriya ID
 $search = $_GET['search'] ?? '';              // Qidiruv matni
 $sort = $_GET['sort'] ?? 'newest';            // Saralash turi
 $page = max(1, (int)($_GET['page'] ?? 1));   // Joriy sahifa
@@ -81,7 +81,7 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="old-price"><?= formatPrice($product['old_price']) ?></span>
                         <?php endif; ?>
                     </div>
-                    <?php if (!User::isAdmin()): ?>
+                    <?php if (!User::isAdmin() && !(User::isLoggedIn() && User::isSeller() && (int)$product['seller_id'] === (int)$_SESSION['user_id'])): ?>
                         <button class="btn btn-primary btn-block" onclick="event.stopPropagation(); addToCart(<?= $product['id'] ?>)">
                             <i class="fas fa-shopping-cart"></i> Savatga
                         </button>
@@ -153,7 +153,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <span class="old-price"><?= formatPrice($product['old_price']) ?></span>
                             <?php endif; ?>
                         </div>
-                        <?php if (!User::isAdmin()): ?>
+                        <?php if (!User::isAdmin() && !(User::isLoggedIn() && User::isSeller() && (int)$product['seller_id'] === (int)$_SESSION['user_id'])): ?>
                             <button class="btn btn-primary btn-block" 
                                     onclick="event.stopPropagation(); addToCart(<?= $product['id'] ?>)"
                                     <?= $product['stock'] < 1 ? 'disabled' : '' ?>>
